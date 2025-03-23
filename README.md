@@ -1,70 +1,148 @@
-# Getting Started with Create React App
+# PushIT - Deployment Management System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+PushIT is a comprehensive deployment management system designed to help IT teams track and manage hardware deployment projects. Whether you're handling a small refresh or a large-scale rollout, PushIT provides the tools you need to manage the entire process from planning to completion.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Project Management**: Create and manage deployment projects with custom fields
+- **Deployment Tracking**: Track individual deployments with detailed status information
+- **User Management**: Role-based access control for administrators and technicians
+- **Excel Integration**: Import and export deployment data using Excel spreadsheets
+- **Custom Fields**: Define custom fields for each project to capture specific deployment requirements
+- **Dashboard**: View deployment progress and statistics at a glance
 
-### `npm start`
+## Technology Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Backend
+- Django 4.2
+- Django REST Framework
+- PostgreSQL
+- Python 3.x
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Frontend
+- React 19.0
+- React Bootstrap
+- React Router 7.4
+- Axios for API communication
+- XLSX.js for Excel file handling
 
-### `npm test`
+## Getting Started
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Prerequisites
 
-### `npm run build`
+- Python 3.x
+- Node.js and npm
+- PostgreSQL
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Backend Setup
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/pushit.git
+   cd pushit
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+   ```
 
-### `npm run eject`
+3. Install dependencies:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+4. Create a `.env` file in the backend directory with the following variables:
+   ```
+   SECRET_KEY=your_secret_key
+   DEBUG=True
+   ALLOWED_HOSTS=localhost,127.0.0.1
+   DB_NAME=pushit
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   DB_HOST=localhost
+   DB_PORT=5432
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+5. Set up the database:
+   ```bash
+   python manage.py migrate
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+6. Create initial data:
+   ```bash
+   python manage.py create_initial_data
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+7. Run the development server:
+   ```bash
+   python manage.py runserver
+   ```
 
-## Learn More
+### Frontend Setup
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-### Code Splitting
+3. Start the development server:
+   ```bash
+   npm start
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+4. The application should now be running at `http://localhost:3000`
 
-### Analyzing the Bundle Size
+## Initial Login
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+After running the `create_initial_data` command, you can log in with the following default credentials:
 
-### Making a Progressive Web App
+- **Admin User**:
+  - Username: `admin`
+  - Password: `admin123`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Technician User**:
+  - Username: `tech`
+  - Password: `tech123`
 
-### Advanced Configuration
+**Important**: Change these passwords immediately after your first login for security purposes.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Usage
 
-### Deployment
+### Project Workflow
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. **Create a Project**: Administrators can create deployment projects with custom fields
+2. **Add Deployments**: Add individual deployments manually or import them from Excel
+3. **Assign Technicians**: Assign technicians to deployments
+4. **Track Progress**: Update deployment statuses as work progresses
+5. **Export Data**: Export deployment data for reporting purposes
 
-### `npm run build` fails to minify
+### User Roles
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Administrators**: Can manage projects, users, and all deployments
+- **Technicians**: Can view and update assigned deployments
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Acknowledgments
+
+- This project uses [Create React App](https://github.com/facebook/create-react-app)
+- UI components by [React Bootstrap](https://react-bootstrap.github.io/)
+- Excel file handling by [SheetJS](https://sheetjs.com/)
