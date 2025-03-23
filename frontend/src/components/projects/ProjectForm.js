@@ -3,6 +3,7 @@ import { Form, Button, Container, Row, Col, Card, Alert, Spinner } from 'react-b
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
+import { useAuth } from '../../context/AuthContext';
 
 const ProjectForm = () => {
   const [name, setName] = useState('');
@@ -15,6 +16,7 @@ const ProjectForm = () => {
   const [error, setError] = useState('');
   const [step, setStep] = useState(1); // 1: Basic Info, 2: Excel Preview, 3: Field Mapping
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   // Custom fields state
   const [customFields, setCustomFields] = useState([]);
@@ -86,6 +88,7 @@ const ProjectForm = () => {
       setLoading(false);
     }
   };
+  
   
   const handleSubmitBasicInfo = (e) => {
     e.preventDefault();

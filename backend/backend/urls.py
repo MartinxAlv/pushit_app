@@ -7,6 +7,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/projects/', include('projects.urls')),
     path('api/deployments/', include('deployments.urls')),
+    path('api/accounts/', include('accounts.urls')),  # This will include the login view at /api/accounts/login/
+    path('api-auth/', include('rest_framework.urls')),  # For browsable API authentication
 ]
 
 # Serve media files in development

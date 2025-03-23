@@ -7,10 +7,19 @@ from .serializers import ProjectSerializer, ProjectFieldSerializer
 import pandas as pd
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from backend.permissions import IsAdminUser
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    
+    def get_permissions(self):
+        """
+        Only admins can create projects
+        """
+        if self.action in ['create', 'update', 'partial_update', 'destroy', 'create_with_excel']:
+            return [IsAdminUser()]
+        return [permissions.IsAuthenticated()]
     
     def perform_create(self, serializer):
         # Set the current user as the creator
