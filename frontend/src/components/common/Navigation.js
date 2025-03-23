@@ -25,6 +25,7 @@ const Navigation = () => {
               <>
                 <Nav.Link as={Link} to="/">Dashboard</Nav.Link>
                 <Nav.Link as={Link} to="/projects">Projects</Nav.Link>
+                <Nav.Link as={Link} to="/users">Users</Nav.Link>
               </>
             )}
             {user && <Nav.Link as={Link} to="/deployments">Deployments</Nav.Link>}

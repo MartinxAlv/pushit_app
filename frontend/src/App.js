@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './components/auth/Login';
 import Dashboard from './components/admin/Dashboard';
+import UserManagement from './components/admin/UserManagement';
 import ProjectList from './components/projects/ProjectList';
 import ProjectForm from './components/projects/ProjectForm';
 import ProjectDetail from './components/projects/ProjectDetail';
@@ -27,6 +28,13 @@ function App() {
             <Route path="/" element={
               <ProtectedRoute requireAdmin={true}>
                 <Dashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* User Management - admin only */}
+            <Route path="/users" element={
+              <ProtectedRoute requireAdmin={true}>
+                <UserManagement />
               </ProtectedRoute>
             } />
             

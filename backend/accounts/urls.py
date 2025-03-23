@@ -1,3 +1,4 @@
+# backend/accounts/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
@@ -10,6 +11,6 @@ urlpatterns = [
     # Direct function view for login
     path('login/', views.login_view, name='login'),
     
-    # Include the router URLs for other user operations
+    # Include the router URLs for user operations
     path('', include(router.urls)),
 ]

@@ -4,7 +4,14 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .serializers import UserSerializer, LoginSerializer
+from backend.permissions import IsAdminUser
+from .serializers import (
+    UserSerializer, 
+    UserCreateSerializer, 
+    UserUpdateSerializer, 
+    PasswordResetSerializer, 
+    LoginSerializer
+)
 
 # Standalone login view
 @api_view(['POST'])
@@ -31,13 +38,40 @@ def login_view(request):
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# User viewset for other operations
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
+# User viewset for CRUD operations
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('username')
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCreateSerializer
+        elif self.action in ['update', 'partial_update']:
+            return UserUpdateSerializer
+        return UserSerializer
+    
+    def get_permissions(self):
+        """
+        Only admins can manage users
+        """
+        if self.action == 'me':
+            return [permissions.IsAuthenticated()]
+        return [IsAdminUser()]
     
     @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
+        """Get current user information"""
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def reset_password(self, request, pk=None):
+        """Reset a user's password (admin only)"""
+        user = self.get_object()
+        serializer = PasswordResetSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            user.set_password(serializer.validated_data['password'])
+            user.save()
+            return Response({'detail': 'Password has been reset successfully'})
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
