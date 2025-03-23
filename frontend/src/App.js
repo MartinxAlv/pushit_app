@@ -4,7 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './components/auth/Login';
-import Dashboard from './components/admin/Dashboard';
+import AdminDashboard from './components/admin/Dashboard';
+import TechnicianDashboard from './components/dashboard/TechnicianDashboard';
 import UserManagement from './components/admin/UserManagement';
 import ProjectList from './components/projects/ProjectList';
 import ProjectForm from './components/projects/ProjectForm';
@@ -26,8 +27,10 @@ function App() {
             
             {/* Admin Dashboard - home route for admin users */}
             <Route path="/" element={
-              <ProtectedRoute requireAdmin={true}>
-                <Dashboard />
+              <ProtectedRoute>
+                {({ user }) => 
+                  user.isAdmin ? <AdminDashboard /> : <TechnicianDashboard />
+                }
               </ProtectedRoute>
             } />
             
@@ -74,6 +77,13 @@ function App() {
             <Route path="/deployments/:id/edit" element={
               <ProtectedRoute>
                 <DeploymentForm />
+              </ProtectedRoute>
+            } />
+
+            {/* Technician Dashboard - explicit route */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <TechnicianDashboard />
               </ProtectedRoute>
             } />
           </Routes>

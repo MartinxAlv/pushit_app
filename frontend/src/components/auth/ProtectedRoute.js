@@ -20,6 +20,11 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
     return <Navigate to="/" replace />;
   }
   
+  // Support for conditional rendering based on user role
+  if (typeof children === 'function') {
+    return children({ user, isAdmin: isAdmin() });
+  }
+  
   return children;
 };
 
