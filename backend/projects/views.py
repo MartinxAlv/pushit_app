@@ -1,5 +1,5 @@
 # backend/projects/views.py
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Project, ProjectField
@@ -7,6 +7,7 @@ from .serializers import ProjectSerializer, ProjectFieldSerializer
 import pandas as pd
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.db import models
 from backend.permissions import IsAdminUser
 
 class ProjectViewSet(viewsets.ModelViewSet):
