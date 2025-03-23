@@ -1,10 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './components/auth/Login';
-import Dashboard from './components/dashboard/Dashboard';
+import Dashboard from './components/admin/Dashboard';
 import ProjectList from './components/projects/ProjectList';
 import ProjectForm from './components/projects/ProjectForm';
 import ProjectDetail from './components/projects/ProjectDetail';
@@ -23,29 +23,26 @@ function App() {
             {/* Auth routes */}
             <Route path="/login" element={<Login />} />
             
-            {/* Home route - redirect to dashboard */}
+            {/* Admin Dashboard - home route for admin users */}
             <Route path="/" element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin={true}>
                 <Dashboard />
               </ProtectedRoute>
             } />
             
-            {/* Dashboard */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
+            {/* Project routes - admin only */}
+            <Route path="/projects" element={
+              <ProtectedRoute requireAdmin={true}>
+                <ProjectList />
               </ProtectedRoute>
             } />
-            
-            {/* Project routes */}
-            <Route path="/projects" element={<ProjectList />} />
             <Route path="/projects/new" element={
               <ProtectedRoute requireAdmin={true}>
                 <ProjectForm />
               </ProtectedRoute>
             } />
             <Route path="/projects/:id" element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin={true}>
                 <ProjectDetail />
               </ProtectedRoute>
             } />
@@ -64,6 +61,11 @@ function App() {
             <Route path="/deployments/:id" element={
               <ProtectedRoute>
                 <DeploymentDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/deployments/:id/edit" element={
+              <ProtectedRoute>
+                <DeploymentForm />
               </ProtectedRoute>
             } />
           </Routes>

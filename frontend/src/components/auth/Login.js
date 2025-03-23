@@ -10,12 +10,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
   
-  // Get the page the user was trying to access or default to dashboard
-  const from = location.state?.from || '/dashboard';
+  // Get the page the user was trying to access
+  const from = location.state?.from || '/';
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,25 +23,28 @@ const Login = () => {
     setError('');
     
     try {
-        const response = await axios.post('http://localhost:8000/api/accounts/login/', {
-          username,
-          password
-        });
-        
-        // Store auth token and user info
-        const userData = {
-          id: response.data.user_id,
-          username: response.data.username,
-          isAdmin: response.data.is_admin,
-          email: response.data.email || ''
-        };
-        
-        // Use the auth context login function
-        login(userData, response.data.token);
-        
-        // Redirect
-        navigate(from);
-      } catch (error) {
+      const response = await axios.post('http://localhost:8000/api/accounts/login/', {
+        username,
+        password
+      });
+      
+      const userData = {
+        id: response.data.user_id,
+        username: response.data.username,
+        isAdmin: response.data.is_admin,
+        email: response.data.email || ''
+      };
+      
+      // Use the AuthContext login function
+      login(userData, response.data.token);
+      
+      // Redirect based on user role
+      if (response.data.is_admin) {
+        navigate('/'); // Admin goes to dashboard
+      } else {
+        navigate('/deployments'); // Regular user goes to deployments
+      }
+    } catch (error) {
       console.error('Login error:', error);
       setError(error.response?.data?.error || 'Login failed. Please check your credentials.');
     } finally {
