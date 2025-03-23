@@ -35,7 +35,7 @@ const ProjectDetail = () => {
         
         // Fetch deployment count in a separate request
         try {
-          const deploymentResponse = await axios.get(`http://localhost:8000/api/projects/${id}/deployments/`);
+          const deploymentResponse = await axios.get(`http://localhost:8000/api/deployments/deployments/?project=${id}`);
           setDeploymentCount(deploymentResponse.data.length);
         } catch (error) {
           console.error('Error fetching deployments:', error);
@@ -156,7 +156,8 @@ const ProjectDetail = () => {
       setProject(projectResponse.data);
       
       // Refresh deployment count
-      const deploymentResponse = await axios.get(`http://localhost:8000/api/projects/${id}/deployments/`);
+      // To this
+      const deploymentResponse = await axios.get(`http://localhost:8000/api/deployments/deployments/?project=${id}`);
       setDeploymentCount(deploymentResponse.data.length);
       
       setShowUploadModal(false);
