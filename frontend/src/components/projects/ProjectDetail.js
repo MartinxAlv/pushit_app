@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Table, Form, Modal, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -8,6 +8,7 @@ const ProjectDetail = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
   
   // Field management
   const [showFieldModal, setShowFieldModal] = useState(false);
@@ -109,7 +110,25 @@ const ProjectDetail = () => {
       setError('Failed to remove field. Please try again.');
     }
   };
-  
+
+  const handleDeleteProject = async () => {
+    if (!window.confirm('Are you sure you want to delete this project? This action cannot be undone and will delete all associated deployments.')) {
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      await axios.delete(`http://localhost:8000/api/projects/${id}/`);
+      navigate('/projects');
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      setError('Failed to delete project. Please try again.');
+      setLoading(false);
+    }
+  };
+
   const handleImportExcel = async () => {
     if (!uploadFile) {
       return;
@@ -152,6 +171,8 @@ const ProjectDetail = () => {
   const handleDownloadTemplate = () => {
     window.location.href = `http://localhost:8000/api/projects/${id}/export_template/`;
   };
+
+  
   
   if (loading) {
     return (
@@ -208,6 +229,9 @@ const ProjectDetail = () => {
           <Button variant="primary" as={Link} to={`/deployments/new?project=${id}`}>
             Add Deployment
           </Button>
+          <Button variant="danger" onClick={handleDeleteProject}>
+  Delete Project
+</Button>
           <Button variant="outline-primary" onClick={() => setShowUploadModal(true)}>
             Import Excel
           </Button>
