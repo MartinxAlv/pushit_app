@@ -1,9 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './components/auth/Login';
+import Dashboard from './components/dashboard/Dashboard';
 import ProjectList from './components/projects/ProjectList';
 import ProjectForm from './components/projects/ProjectForm';
 import ProjectDetail from './components/projects/ProjectDetail';
@@ -22,8 +23,19 @@ function App() {
             {/* Auth routes */}
             <Route path="/login" element={<Login />} />
             
-            {/* Home route */}
-            <Route path="/" element={<ProjectList />} />
+            {/* Home route - redirect to dashboard */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Dashboard */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
             
             {/* Project routes */}
             <Route path="/projects" element={<ProjectList />} />

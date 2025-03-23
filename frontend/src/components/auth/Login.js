@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -9,11 +10,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get the page the user was trying to access
-  const from = location.state?.from || '/';
+  // Get the page the user was trying to access or default to dashboard
+  const from = location.state?.from || '/dashboard';
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,17 +28,16 @@ const Login = () => {
           password
         });
         
-        // Store auth token and user info in localStorage
-        localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('user', JSON.stringify({
+        // Store auth token and user info
+        const userData = {
           id: response.data.user_id,
           username: response.data.username,
           isAdmin: response.data.is_admin,
           email: response.data.email || ''
-        }));
+        };
         
-        // Set default Authorization header
-        axios.defaults.headers.common['Authorization'] = `Token ${response.data.token}`;
+        // Use the auth context login function
+        login(userData, response.data.token);
         
         // Redirect
         navigate(from);
