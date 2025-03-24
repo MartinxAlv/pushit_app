@@ -132,8 +132,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response({"error": "Field not found"}, 
                             status=status.HTTP_404_NOT_FOUND)
     
-    @action(detail=True, methods=['post'])
-    def analyze_excel(self, request, pk=None):
+    @action(detail=False, methods=['post'])
+    def analyze_excel(self, request):
         """Analyze Excel file and return column information without importing"""
         file_obj = request.FILES.get('file')
         
