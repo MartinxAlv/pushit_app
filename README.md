@@ -38,7 +38,7 @@ PushIT is a comprehensive deployment management system designed to help IT teams
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/pushit.git
+   git clone https://github.com/MartinxAlv/pushit_app.git
    cd pushit
    ```
 
