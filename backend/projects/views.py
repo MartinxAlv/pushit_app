@@ -145,6 +145,30 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response({"error": "Field not found"}, 
                             status=status.HTTP_404_NOT_FOUND)
     
+    @action(detail=True, methods=['post'])
+    def import_excel(self, request, pk=None):
+        """Import Excel data into an existing project"""
+        project = self.get_object()
+        file_obj = request.FILES.get('file')
+    
+        if not file_obj:
+            return Response({"error": "Excel file is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+        try:
+            # Read Excel file
+            df = pd.read_excel(file_obj)
+        
+            # Process data and create deployments
+            # You may want to adapt this based on your specific needs
+        
+            return Response({
+                "message": "Excel data imported successfully",
+                "rows_processed": len(df)
+            })
+        except Exception as e:
+            return Response({"error": f"Error processing Excel file: {str(e)}"}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+    
     @action(detail=False, methods=['post'])
     def analyze_excel(self, request):
         """Analyze Excel file and return column information without importing"""
@@ -211,3 +235,110 @@ class ProjectViewSet(viewsets.ModelViewSet):
         df.to_excel(response, index=False)
         
         return response
+    
+
+    @action(detail=True, methods=['post'])
+    def import_excel(self, request, pk=None):
+        """Import Excel data into an existing project"""
+        project = self.get_object()
+        file_obj = request.FILES.get('file')
+    
+        if not file_obj:
+            return Response({"error": "Excel file is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+        try:
+            # Read Excel file
+            df = pd.read_excel(file_obj)
+        
+            # Get the default deployment status
+            from deployments.models import DeploymentStatus, Deployment
+        
+            try:
+                default_status = DeploymentStatus.objects.order_by('order').first()
+                if not default_status:
+                    return Response({"error": "No deployment status found. Please create at least one status."},
+                                status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"error": f"Error getting default status: {str(e)}"},
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+            # Create a mapping of column names to field ids
+            field_map = {}
+            for field in project.fields.all():
+                field_map[field.name] = field.id
+        
+            # Process each row in the Excel file
+            deployments_created = 0
+            errors = []
+        
+            for idx, row in df.iterrows():
+                try:
+                    # Basic deployment data
+                    deployment_data = {
+                        'project': project,
+                        'deployment_id': f"DEP-{idx+1:04d}",
+                        'status': default_status
+                    }
+                
+                    # Map common fields
+                    common_fields = {
+                        'assigned_to': ['Assigned To', 'Assignee', 'User', 'Employee'],
+                        'position': ['Position', 'Title', 'Role', 'Job Title'],
+                        'location': ['Location', 'Office', 'Site', 'Building'],
+                        'current_model': ['Current Model', 'Old Model', 'Existing Model'],
+                        'current_sn': ['Current SN', 'Old SN', 'Existing SN'],
+                        'new_model': ['New Model', 'Model', 'Target Model'],
+                        'new_sn': ['New SN', 'SN', 'Serial Number']
+                    }
+                
+                    # Try to map common fields
+                    for field, possible_names in common_fields.items():
+                        for name in possible_names:
+                            if name in df.columns and pd.notna(row[name]):
+                                deployment_data[field] = str(row[name])
+                                break
+                
+                    # Create the deployment
+                    deployment = Deployment.objects.create(**deployment_data)
+                
+                    # Process custom fields
+                    from deployments.models import DeploymentField
+                
+                    for column in df.columns:
+                        # Skip empty cells
+                        if pd.isna(row[column]):
+                            continue
+                        
+                        # Check if this column matches a project field
+                        field_id = None
+                        for field_name, field_id_value in field_map.items():
+                            if column.lower() == field_name.lower():
+                                field_id = field_id_value
+                                break
+                    
+                        if field_id:
+                            # Create deployment field
+                            DeploymentField.objects.create(
+                                deployment=deployment,
+                                field_id=field_id,
+                                value=str(row[column])
+                            )
+                
+                    deployments_created += 1
+                
+                except Exception as e:
+                    errors.append(f"Error in row {idx+1}: {str(e)}")
+        
+            result = {
+                "message": f"Successfully imported {deployments_created} deployments",
+                "total_created": deployments_created
+            }
+        
+            if errors:
+                result["errors"] = errors
+            
+            return Response(result)
+        
+        except Exception as e:
+            return Response({"error": f"Error processing Excel file: {str(e)}"},
+                        status=status.HTTP_400_BAD_REQUEST)
