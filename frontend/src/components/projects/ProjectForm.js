@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 const ProjectForm = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [expectedCount, setExpectedCount] = useState(0);
+  const [expectedCount, setExpectedCount] = useState('');
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
   const [columnPreview, setColumnPreview] = useState([]);
@@ -164,7 +164,7 @@ const ProjectForm = () => {
         const formData = new FormData();
         formData.append('name', name);
         formData.append('description', description);
-        formData.append('expected_count', expectedCount);
+        formData.append('expected_count', expectedCount === '' ? 0 : parseInt(expectedCount));
         formData.append('file', file);
         
         projectResponse = await axios.post(
@@ -177,7 +177,7 @@ const ProjectForm = () => {
         projectResponse = await axios.post('http://localhost:8000/api/projects/', {
           name,
           description,
-          expected_count: expectedCount
+          expected_count: expectedCount === '' ? 0 : parseInt(expectedCount)
         });
       }
       
@@ -242,13 +242,15 @@ const ProjectForm = () => {
             </Form.Group>
             
             <Form.Group className="mb-3">
-              <Form.Label>Expected Number of Deployments</Form.Label>
-              <Form.Control
-                type="number"
-                value={expectedCount}
-                onChange={(e) => setExpectedCount(parseInt(e.target.value) || 0)}
-              />
-            </Form.Group>
+  <Form.Label>Expected Number of Deployments</Form.Label>
+  <Form.Control
+    type="number"
+    value={expectedCount}
+    onChange={(e) => setExpectedCount(e.target.value)}
+    min="0"
+    placeholder="0"
+  />
+</Form.Group>
             
             <Form.Group className="mb-3">
               <Form.Label>Upload Deployment Sheet (Optional)</Form.Label>
