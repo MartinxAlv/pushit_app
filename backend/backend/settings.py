@@ -105,6 +105,10 @@ DATABASES = {
 CORS_ALLOW_ALL_ORIGINS = True  # Only in development!
 CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',

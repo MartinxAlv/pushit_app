@@ -149,6 +149,12 @@ const ProjectForm = () => {
   const handleCustomFieldChange = (index, field, value) => {
     const updatedFields = [...customFields];
     updatedFields[index][field] = value;
+    
+    // If changing field type to dropdown, initialize options as empty array if not set
+    if (field === 'fieldType' && value === 'dropdown' && !updatedFields[index].options) {
+      updatedFields[index].options = [];
+    }
+    
     setCustomFields(updatedFields);
   };
   
@@ -157,7 +163,7 @@ const ProjectForm = () => {
     setError('');
     
     try {
-      let projectResponse;
+      let projectId;
       
       if (file) {
         // Create project with Excel
@@ -167,38 +173,70 @@ const ProjectForm = () => {
         formData.append('expected_count', expectedCount === '' ? 0 : parseInt(expectedCount));
         formData.append('file', file);
         
-        projectResponse = await axios.post(
+        const projectResponse = await axios.post(
           'http://localhost:8000/api/projects/create_with_excel/',
           formData, 
           { headers: { 'Content-Type': 'multipart/form-data' }}
         );
+        
+        projectId = projectResponse.data.id || projectResponse.data.project_id;
       } else {
         // Create project without Excel
-        projectResponse = await axios.post('http://localhost:8000/api/projects/', {
+        const projectResponse = await axios.post('http://localhost:8000/api/projects/', {
           name,
           description,
           expected_count: expectedCount === '' ? 0 : parseInt(expectedCount)
         });
-      }
-      
-      const projectId = projectResponse.data.id;
-      
-      // If we have custom fields and didn't use Excel, create them
-      if (customFields.length > 0 && !file) {
-        for (const field of customFields) {
-          await axios.post(`http://localhost:8000/api/projects/${projectId}/add_field/`, {
-            name: field.name,
-            field_type: field.fieldType,
-            is_required: field.isRequired,
-            options: field.options
-          });
+        
+        projectId = projectResponse.data.id;
+        
+        // Only add custom fields if we have a valid project ID
+        if (projectId && customFields.length > 0) {
+          for (const field of customFields) {
+            try {
+              // Format options correctly
+              let fieldOptions = null;
+              if (field.fieldType === 'dropdown') {
+                if (typeof field.options === 'string') {
+                  fieldOptions = field.options.split(',').map(opt => opt.trim());
+                } else {
+                  fieldOptions = field.options || [];
+                }
+              }
+              
+              await axios.post(`http://localhost:8000/api/projects/${projectId}/add_field/`, {
+                name: field.name,
+                field_type: field.fieldType,
+                is_required: field.isRequired,
+                options: fieldOptions
+              });
+            } catch (fieldError) {
+              console.error('Error adding field:', fieldError);
+              // Continue with other fields
+            }
+          }
         }
       }
       
-      navigate(`/projects/${projectId}`);
+      // Only navigate if we have a valid project ID
+      if (projectId) {
+        navigate(`/projects/${projectId}`);
+      } else {
+        throw new Error('No project ID returned from the server');
+      }
     } catch (err) {
       console.error('Error creating project:', err);
-      setError('Error creating project. Please try again.');
+      console.error('Response:', err.response?.data);
+      
+      // Check if the project was actually created despite the error
+      const maybeProjectId = err.response?.data?.id || err.response?.data?.project_id;
+      if (maybeProjectId) {
+        // Project was created but there was some other error
+        navigate(`/projects/${maybeProjectId}`);
+      } else {
+        setError('Error creating project. Please try again: ' + 
+                 (err.response?.data?.error || err.message));
+      }
     } finally {
       setLoading(false);
     }

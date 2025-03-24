@@ -94,30 +94,43 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def add_field(self, request, pk=None):
         """Add a new field to the project"""
-        project = self.get_object()
-        name = request.data.get('name')
-        field_type = request.data.get('field_type', 'text')
-        is_required = request.data.get('is_required', False)
-        options = request.data.get('options')
+        try:
+            project = self.get_object()
+            name = request.data.get('name')
+            field_type = request.data.get('field_type', 'text')
+            is_required = request.data.get('is_required', False)
+            options = request.data.get('options')
         
-        if not name:
-            return Response({"error": "Field name is required"}, 
-                            status=status.HTTP_400_BAD_REQUEST)
+            if not name:
+                return Response({"error": "Field name is required"}, 
+                                status=status.HTTP_400_BAD_REQUEST)
         
-        # Get the highest order and add 1
-        max_order = project.fields.aggregate(models.Max('order'))['order__max'] or -1
+            # Get the highest order and add 1
+            max_order = project.fields.aggregate(models.Max('order'))['order__max'] or -1
         
-        field = ProjectField.objects.create(
-            project=project,
-            name=name,
-            field_type=field_type,
-            is_required=is_required,
-            order=max_order + 1,
-            options=options
-        )
+            # Format options correctly
+            if field_type == 'dropdown' and options:
+                # If options is a string, try to convert it to a list
+                if isinstance(options, str):
+                    options = [opt.strip() for opt in options.split(',')]
         
-        serializer = ProjectFieldSerializer(field)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            field = ProjectField.objects.create(
+                project=project,
+                name=name,
+                field_type=field_type,
+                is_required=is_required,
+                order=max_order + 1,
+                options=options
+            )
+        
+            serializer = ProjectFieldSerializer(field)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     @action(detail=True, methods=['delete'], url_path='remove-field/(?P<field_id>[^/.]+)')
     def remove_field(self, request, pk=None, field_id=None):
