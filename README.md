@@ -132,17 +132,3 @@ After running the `create_initial_data` command, you can log in with the followi
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## Acknowledgments
-
-- This project uses [Create React App](https://github.com/facebook/create-react-app)
-- UI components by [React Bootstrap](https://react-bootstrap.github.io/)
-- Excel file handling by [SheetJS](https://sheetjs.com/)
