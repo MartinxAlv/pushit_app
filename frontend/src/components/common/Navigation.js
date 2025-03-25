@@ -2,6 +2,7 @@ import React from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import FancyThemeToggle from './FancyThemeToggle';
 
 const Navigation = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -43,6 +44,7 @@ const Navigation = () => {
           <Nav>
             {user ? (
               <>
+                <FancyThemeToggle />
                 <Navbar.Text className="me-3">
                   Logged in as: <span className="text-light">{user.username}</span>
                   {isAdmin() && <span className="badge bg-warning text-dark ms-2">Admin</span>}
@@ -52,7 +54,10 @@ const Navigation = () => {
                 </Button>
               </>
             ) : (
-              <Nav.Link as={Link} to="/login">Login</Nav.Link>
+              <>
+                <FancyThemeToggle />
+                <Nav.Link as={Link} to="/login">Login</Nav.Link>
+              </>
             )}
           </Nav>
         </Navbar.Collapse>
